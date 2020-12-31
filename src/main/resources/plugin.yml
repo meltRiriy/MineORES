@@ -1,0 +1,11 @@
+name: mineores
+version: ${project.version}
+main: ardririy.mineones.MineONES
+api-version: 1.16
+authors: [ ardRiriy ]
+description: Mining ores.
+commands:
+  timer:
+    description: timer [min] [sec] でタイマーを設定します
+  start:
+    description: カウントダウンを開始します
