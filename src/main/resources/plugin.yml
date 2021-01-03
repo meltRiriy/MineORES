@@ -9,3 +9,5 @@ commands:
     description: timer [min] [sec] でタイマーを設定します
   start:
     description: カウントダウンを開始します
+  score:
+    description: スコアを表示します
