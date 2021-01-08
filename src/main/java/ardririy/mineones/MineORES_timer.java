@@ -10,13 +10,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
 
+import java.io.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MineORES_timer implements CommandExecutor{
-    int min = 30;
-    int sec = 0;
-    int all_sec = min*60 + sec;
 
     ScoreboardManager manager = Bukkit.getScoreboardManager();
     Scoreboard board = manager.getNewScoreboard();
@@ -26,11 +24,83 @@ public class MineORES_timer implements CommandExecutor{
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
         if(cmd.getName().equalsIgnoreCase("timer")){
-            if(args.length !=0){
-                int min = Integer.parseInt(args[0]);
-                int sec = Integer.parseInt(args[1]);
+            if(args[0].equalsIgnoreCase("set")){
+                int min = Integer.parseInt(args[1]);
+                int sec = Integer.parseInt(args[2]) + 5;
+
+                try{
+                    FileWriter csv = new FileWriter("timer.csv");
+                    PrintWriter pw = new PrintWriter(new BufferedWriter(csv));
+                    pw.write("timer" + "," + min + "," + sec);
+                    pw.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                int pre_sec = sec - 5;
+                Bukkit.broadcastMessage("タイマーを"+min+"分"+ pre_sec +"秒に設定しました！");
+
+            }else if(args[0].equalsIgnoreCase("start")){
+
+                Timer timer = new Timer();
+                TimerTask task = new TimerTask() {
+                    int preCount = 5;
+
+                    public void run() {
+                        if (preCount > 0) {
+                            Bukkit.getServer().broadcastMessage(String.valueOf(preCount) + "...");
+                            preCount--;
+                        } else {
+                            Bukkit.getServer().broadcastMessage("start!");
+                            timer.cancel();
+                        }
+                    }
+                };
+                timer.scheduleAtFixedRate(task, 0, 1000);
+
+                ScoreboardManager manager = Bukkit.getScoreboardManager();
+                Scoreboard board = manager.getNewScoreboard();
+
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.setScoreboard(board);
+                }
+
+                try{
+                    FileInputStream fi = new FileInputStream("timer.csv");
+                    InputStreamReader is = new InputStreamReader(fi);
+                    BufferedReader br = new BufferedReader(is);
+                    String line;
+                    String[] data ;
+                    while ((line = br.readLine()) != null ) {
+                        data = line.split(",");
+
+                        String min = data[1];
+                        String sec = data[2];
+                        final int[] all_sec = {Integer.parseInt(min) * 60 + Integer.parseInt(sec)};
+
+                        Objective objective = board.registerNewObjective("time", "dummy");
+                        objective.setDisplayName("Information");
+                        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                        Timer timerA = new Timer();
+                        TimerTask taskA = new TimerTask() {
+                            public void run() {
+                                Score score = objective.getScore("残り時間：");
+                                score.setScore(all_sec[0]);
+                                if (all_sec[0] > 0) {
+                                    all_sec[0]--;
+                                } else {
+                                    Bukkit.getServer().broadcastMessage("終了！");
+                                    timerA.cancel();
+                                }
+                            }
+                        };
+                        timerA.scheduleAtFixedRate(taskA, 0, 1000);
+                    }br.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
-            return false;
         }else if(cmd.getName().equalsIgnoreCase("score")) {
             Bukkit.getServer().broadcastMessage("***結果発表***");
 
@@ -125,48 +195,6 @@ public class MineORES_timer implements CommandExecutor{
                 Score score = objective.getScore(player.getDisplayName());
                 score.setScore(player_score);
             }
-        }else if(cmd.getName().equalsIgnoreCase("start")) {
-            Timer timer = new Timer();
-            TimerTask task = new TimerTask() {
-                int preCount = 5;
-
-                public void run() {
-                    if (preCount > 0) {
-                        Bukkit.getServer().broadcastMessage(String.valueOf(preCount) + "...");
-                        preCount--;
-                    } else {
-                        Bukkit.getServer().broadcastMessage("start!");
-                        timer.cancel();
-                    }
-                }
-            };
-            timer.scheduleAtFixedRate(task, 0, 1000);
-
-
-            ScoreboardManager manager = Bukkit.getScoreboardManager();
-            Scoreboard board = manager.getNewScoreboard();
-
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.setScoreboard(board);
-            }
-
-            Objective objective = board.registerNewObjective("time", "dummy");
-            objective.setDisplayName("Information");
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            Timer timerA = new Timer();
-            TimerTask taskA = new TimerTask() {
-                public void run() {
-                    Score score = objective.getScore("残り時間：");
-                    score.setScore(all_sec);
-                    if (all_sec > 0) {
-                        all_sec--;
-                    } else {
-                        Bukkit.getServer().broadcastMessage("終了！");
-                        timerA.cancel();
-                    }
-                }
-            };
-            timerA.scheduleAtFixedRate(taskA, 0, 1000);
         }return false;
     }
 }

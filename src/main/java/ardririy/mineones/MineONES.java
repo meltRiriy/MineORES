@@ -3,7 +3,6 @@ package ardririy.mineones;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
-
 public class MineONES extends JavaPlugin {
 
     @Override
