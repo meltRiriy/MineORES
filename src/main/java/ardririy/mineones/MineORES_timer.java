@@ -11,6 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -18,8 +20,6 @@ public class MineORES_timer implements CommandExecutor{
 
     ScoreboardManager manager = Bukkit.getScoreboardManager();
     Scoreboard board = manager.getNewScoreboard();
-    Objective objective = board.registerNewObjective("Information", "dummy");
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -104,97 +104,76 @@ public class MineORES_timer implements CommandExecutor{
         }else if(cmd.getName().equalsIgnoreCase("score")) {
             Bukkit.getServer().broadcastMessage("***結果発表***");
 
+            int max_score = 0;
+
+            Map<Integer,String> map = new HashMap<>();
             for ( Player player : Bukkit.getOnlinePlayers() ) {
                 Inventory inv = player.getInventory();
                 player.setScoreboard(board);
-                int diamond_amount = 0;
-                for(int i = 1; inv.contains(Material.DIAMOND)==true; ++i){
-                    if(inv.contains(new ItemStack(Material.DIAMOND,i)) == true) {
-                        diamond_amount = diamond_amount + i;
-                        int diamond_place = inv.first(new ItemStack(Material.DIAMOND,i));
-                        inv.clear(diamond_place);
-                        i = 1;
-                    }else{
-                        continue;
-                    }
-                }
-                int iron_amount = 0;
-                for(int i2 = 1;inv.contains(Material.IRON_INGOT)==true;++i2){
-                    if(inv.contains(new ItemStack(Material.IRON_INGOT,i2)) == true) {
-                        iron_amount = iron_amount + i2;
-                        int diamond_place = inv.first(new ItemStack(Material.IRON_INGOT,i2));
-                        inv.clear(diamond_place);
-                        i2 = 1;
-                    }else{
-                        continue;
-                    }
-                }
-                int gold_amount = 0;
-                for(int i3 = 1;inv.contains(Material.GOLD_INGOT)==true;++i3){
-                    if(inv.contains(new ItemStack(Material.GOLD_INGOT,i3)) == true) {
-                        gold_amount = gold_amount + i3;
-                        int diamond_place = inv.first(new ItemStack(Material.GOLD_INGOT,i3));
-                        inv.clear(diamond_place);
-                        i3 = 1;
-                    }else{
-                        continue;
-                    }
-                }
-                int coal_amount = 0;
-                for(int i4 = 1;inv.contains(Material.COAL)==true;++i4){
-                    if(inv.contains(new ItemStack(Material.COAL,i4)) == true) {
-                        coal_amount = coal_amount + i4;
-                        int diamond_place = inv.first(new ItemStack(Material.COAL,i4));
-                        inv.clear(diamond_place);
-                        i4 = 1;
-                    }else{
-                        continue;
-                    }
-                }
-                int emerald_amount = 0;
-                for(int i5 = 1;inv.contains(Material.EMERALD)==true;++i5){
-                    if(inv.contains(new ItemStack(Material.EMERALD,i5)) == true) {
-                        emerald_amount = emerald_amount + i5;
-                        int diamond_place = inv.first(new ItemStack(Material.EMERALD,i5));
-                        inv.clear(diamond_place);
-                        i5 = 1;
-                    }else{
-                        continue;
-                    }
-                }
-                int netherrite_amount = 0;
-                for(int i6 = 1;inv.contains(Material.COAL)==true;++i6){
-                    if(inv.contains(new ItemStack(Material.COAL,i6)) == true) {
-                        netherrite_amount = netherrite_amount + i6;
-                        int diamond_place = inv.first(new ItemStack(Material.NETHERITE_INGOT,i6));
-                        inv.clear(diamond_place);
-                        i6 = 1;
-                    }else{
-                        continue;
-                    }
-                }
-                int player_score = diamond_amount*20 + iron_amount*5 + gold_amount*15 + coal_amount*1 +emerald_amount*30 + netherrite_amount*10;
 
-                Timer timer = new Timer();
-                TimerTask task = new TimerTask() {
-                    int cnt = 0;
-                    @Override
-                    public void run() {
-                        cnt += 1 ;
-                        if(cnt==1){
-                            timer.cancel();
-                        }
+                int diamond_amount = 0;
+                int iron_amount = 0;
+                int gold_amount = 0;
+                int coal_amount = 0;
+                int emerald_amount = 0;
+                int netherrite_amount = 0;
+                for (int i = 0, size = inv.getSize(); i < size; ++i){
+                    ItemStack item = inv.getItem(i);
+                    if(item == null || item.getType() != Material.DIAMOND){
+                        continue;
                     }
-                };
-                timer.schedule(task,0,100);
+                    diamond_amount += item.getAmount();
+                }
+                for (int i = 0, size = inv.getSize(); i < size; ++i){
+                    ItemStack item = inv.getItem(i);
+                    if(item == null || item.getType() != Material.IRON_INGOT){
+                        continue;
+                    }
+                    iron_amount += item.getAmount();
+                }
+                for (int i = 0, size = inv.getSize(); i < size; ++i){
+                    ItemStack item = inv.getItem(i);
+                    if(item == null || item.getType() != Material.GOLD_INGOT){
+                        continue;
+                    }
+                    gold_amount += item.getAmount();
+                }
+                for (int i = 0, size = inv.getSize(); i < size; ++i){
+                    ItemStack item = inv.getItem(i);
+                    if(item == null || item.getType() != Material.COAL){
+                        continue;
+                    }
+                    coal_amount += item.getAmount();
+                }
+                for (int i = 0, size = inv.getSize(); i < size; ++i){
+                    ItemStack item = inv.getItem(i);
+                    if(item == null || item.getType() != Material.EMERALD){
+                        continue;
+                    }
+                    emerald_amount += item.getAmount();
+                }
+                for (int i = 0, size = inv.getSize(); i < size; ++i){
+                    ItemStack item = inv.getItem(i);
+                    if(item == null || item.getType() != Material.NETHERITE_INGOT){
+                        continue;
+                    }
+                    netherrite_amount += item.getAmount();
+                }
+
+
+                int player_score = diamond_amount*20 + iron_amount*5 + gold_amount*15 + coal_amount +emerald_amount*30 + netherrite_amount*10;
 
                 Bukkit.getServer().broadcastMessage(player.getDisplayName()+":"+player_score+"ポイント");
 
-                objective.setDisplayName("***points***");
-                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                Score score = objective.getScore(player.getDisplayName());
-                score.setScore(player_score);
+                if(player_score > max_score){
+                    max_score = player_score;
+                    String first_place = player.getDisplayName();
+                    map.put(max_score,first_place);
+                }
+
             }
+            Bukkit.broadcastMessage("------------------------------");
+            Bukkit.broadcastMessage("\n優勝は"+map.get(max_score)+"さんでした！");
         }return false;
     }
 }
